@@ -6,11 +6,13 @@ function formatDate(value) {
 }
 (async () => {
   const container = document.querySelector("#singlePost");
+  const slugMatch = location.pathname.match(/^\/p\/(.+)$/);
   const id = new URLSearchParams(location.search).get("id");
-  if (!id) { container.innerHTML = "<h1>Post not found</h1><p><a href='/'>Back to the blog</a></p>"; return; }
-  const response = await fetch(`/api/posts/${encodeURIComponent(id)}`);
+  if (!slugMatch && !id) { container.innerHTML = "<h1>Post not found</h1><p><a href='/'>Back to the blog</a></p>"; return; }
+  const endpoint = slugMatch ? `/api/posts/slug/${encodeURIComponent(decodeURIComponent(slugMatch[1]))}` : `/api/posts/${encodeURIComponent(id)}`;
+  const response = await fetch(endpoint);
   if (!response.ok) { container.innerHTML = "<h1>Post not found</h1><p><a href='/'>Back to the blog</a></p>"; return; }
   const post = await response.json();
   document.title = `${post.title} — Simple Blog`;
-  container.innerHTML = `<p class="post-date">${formatDate(post.created_at)} · ${escapeHtml(post.username)}</p><h1 class="post-title">${escapeHtml(post.title)}</h1><div class="post-body single-post-body">${escapeHtml(post.body).replaceAll("\n", "<br>")}</div><p class="back-link"><a href="/">← Back to all posts</a></p>`;
+  container.innerHTML = `${post.cover_image_url ? `<img class="single-cover" src="${escapeHtml(post.cover_image_url)}" alt="">` : ""}<p class="post-date">${formatDate(post.created_at)} · ${escapeHtml(post.username)}</p><h1 class="post-title">${escapeHtml(post.title)}</h1><div class="post-body single-post-body">${escapeHtml(post.body).replaceAll("\n", "<br>")}</div><p class="back-link"><a href="/">← Back to all posts</a></p>`;
 })();

@@ -49,10 +49,11 @@ async function loadPosts() {
 
   container.innerHTML = posts.map(post => `
     <article class="post-card">
+      ${post.cover_image_url ? `<img class="card-cover" src="${escapeHtml(post.cover_image_url)}" alt="">` : ""}
       <p class="post-date">${formatDate(post.created_at)} · ${escapeHtml(post.username)}</p>
-      <h3><a class="post-title-link" href="/post.html?id=${post.id}">${escapeHtml(post.title)}</a></h3>
+      <h3><a class="post-title-link" href="/p/${encodeURIComponent(post.slug)}">${escapeHtml(post.title)}</a></h3>
       <div class="post-body post-excerpt">${escapeHtml(post.body.length > 260 ? post.body.slice(0, 260) + "…" : post.body).replaceAll("\n", "<br>")}</div>
-      <a class="read-more" href="/post.html?id=${post.id}">Read post →</a>
+      <a class="read-more" href="/p/${encodeURIComponent(post.slug)}">Read post →</a>
     </article>
   `).join("");
 }

@@ -7,9 +7,16 @@ const rateLimit = require("express-rate-limit");
 const session = require("express-session");
 const pg = require("pg");
 const bcrypt = require("bcryptjs");
+const multer = require("multer");
+const crypto = require("crypto");
+const { createClient } = require("@supabase/supabase-js");
 
 const { Pool } = pg;
 const app = express();
+const supabase = process.env.SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY ? createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SERVICE_ROLE_KEY, { auth: { persistSession: false } }) : null;
+const storageBucket = process.env.SUPABASE_STORAGE_BUCKET || "blog-images";
+const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 5 * 1024 * 1024 }, fileFilter: (_req, file, cb) => cb(null, ["image/jpeg","image/png","image/webp","image/gif"].includes(file.mimetype)) });
+function slugify(title) { const base = String(title).toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"").slice(0,180) || "post"; return `${base}-${crypto.randomBytes(3).toString("hex")}`; }
 
 if (!process.env.DATABASE_URL) {
   console.error("DATABASE_URL is missing. Copy .env.example to .env and add your Supabase connection string.");
@@ -46,6 +53,7 @@ app.use(session({
 }));
 
 app.use(express.static(path.join(__dirname, "public")));
+app.get("/p/:slug", (_req, res) => res.sendFile(path.join(__dirname, "public", "post.html")));
 
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
@@ -112,9 +120,12 @@ app.get("/api/posts", async (req, res) => {
         posts.title,
         posts.body,
         posts.created_at,
+        posts.slug,
+        posts.cover_image_url,
         users.username
       from posts
       join users on users.id = posts.author_id
+      where posts.status = 'published'
       order by posts.created_at desc
     `);
 
@@ -125,10 +136,22 @@ app.get("/api/posts", async (req, res) => {
   }
 });
 
+
+app.get("/api/admin/posts", requireLogin, async (req, res) => {
+  try { const r = await pool.query("select id,title,body,slug,status,cover_image_url,created_at,updated_at from posts where author_id=$1 order by updated_at desc", [req.session.user.id]); res.json(r.rows); }
+  catch (e) { console.error(e); res.status(500).json({error:"Could not load posts."}); }
+});
+app.get("/api/posts/slug/:slug", async (req,res) => {
+  try { const r=await pool.query(`select posts.id,posts.title,posts.body,posts.slug,posts.cover_image_url,posts.created_at,users.username from posts join users on users.id=posts.author_id where posts.slug=$1 and posts.status='published'`,[req.params.slug]); if(!r.rowCount)return res.status(404).json({error:"Post not found."});res.json(r.rows[0]); } catch(e){console.error(e);res.status(500).json({error:"Could not load the post."});}
+});
+app.post("/api/upload", requireLogin, upload.single("image"), async (req,res) => {
+  try { if(!supabase)return res.status(503).json({error:"Image storage is not configured yet."}); if(!req.file)return res.status(400).json({error:"Choose a JPG, PNG, WebP or GIF under 5 MB."}); const ext=(req.file.originalname.split(".").pop()||"jpg").replace(/[^a-z0-9]/gi,"").toLowerCase(); const key=`covers/${req.session.user.id}/${Date.now()}-${crypto.randomBytes(4).toString("hex")}.${ext}`; const {error}=await supabase.storage.from(storageBucket).upload(key,req.file.buffer,{contentType:req.file.mimetype}); if(error)throw error; const {data}=supabase.storage.from(storageBucket).getPublicUrl(key); res.json({url:data.publicUrl}); } catch(e){console.error(e);res.status(500).json({error:"Image upload failed."});}
+});
+
 app.get("/api/posts/:id", async (req, res) => {
   try {
     const result = await pool.query(`
-      select posts.id, posts.title, posts.body, posts.created_at, users.username
+      select posts.id, posts.title, posts.body, posts.slug, posts.status, posts.cover_image_url, posts.created_at, users.username
       from posts
       join users on users.id = posts.author_id
       where posts.id = $1
@@ -146,6 +169,8 @@ app.post("/api/posts", requireLogin, async (req, res) => {
   try {
     const title = String(req.body.title || "").trim();
     const body = String(req.body.body || "").trim();
+    const status = req.body.status === "draft" ? "draft" : "published";
+    const cover = req.body.cover_image_url ? String(req.body.cover_image_url) : null;
 
     if (!title || !body) {
       return res.status(400).json({ error: "Title and post text are required." });
@@ -156,10 +181,10 @@ app.post("/api/posts", requireLogin, async (req, res) => {
     }
 
     const result = await pool.query(
-      `insert into posts (title, body, author_id)
-       values ($1, $2, $3)
-       returning id, title, body, created_at`,
-      [title, body, req.session.user.id]
+      `insert into posts (title, body, author_id, slug, status, cover_image_url)
+       values ($1, $2, $3, $4, $5, $6)
+       returning *`,
+      [title, body, req.session.user.id, slugify(title), status, cover]
     );
 
     res.status(201).json({
@@ -176,12 +201,14 @@ app.put("/api/posts/:id", requireLogin, async (req, res) => {
   try {
     const title = String(req.body.title || "").trim();
     const body = String(req.body.body || "").trim();
+    const status = req.body.status === "draft" ? "draft" : "published";
+    const cover = req.body.cover_image_url ? String(req.body.cover_image_url) : null;
     if (!title || !body) return res.status(400).json({ error: "Title and post text are required." });
     if (title.length > 200 || body.length > 20000) return res.status(400).json({ error: "The post is too long." });
 
     const result = await pool.query(
-      `update posts set title = $1, body = $2 where id = $3 and author_id = $4 returning id, title, body, created_at`,
-      [title, body, req.params.id, req.session.user.id]
+      `update posts set title=$1, body=$2, status=$3, cover_image_url=$4, updated_at=now() where id=$5 and author_id=$6 returning *`,
+      [title, body, status, cover, req.params.id, req.session.user.id]
     );
     if (!result.rowCount) return res.status(404).json({ error: "Post not found." });
     res.json({ ...result.rows[0], username: req.session.user.username });
