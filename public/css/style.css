@@ -1,0 +1,268 @@
+:root {
+  font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  color: #17202a;
+  background: #f5f7fa;
+  line-height: 1.6;
+}
+
+* { box-sizing: border-box; }
+
+body { margin: 0; }
+
+a { color: inherit; }
+
+.site-header {
+  background: white;
+  border-bottom: 1px solid #e7ebef;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.container {
+  width: min(100% - 32px, 960px);
+  margin: 0 auto;
+}
+
+.nav {
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.nav nav {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+
+.nav a {
+  text-decoration: none;
+  color: #52606d;
+}
+
+.brand {
+  font-weight: 800;
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+
+.hero {
+  padding: 88px 0 60px;
+  max-width: 720px;
+}
+
+.hero h1, .page h1 {
+  font-size: clamp(2.2rem, 6vw, 4.5rem);
+  line-height: 1.05;
+  letter-spacing: -0.04em;
+  margin: 8px 0 20px;
+}
+
+.hero p:not(.eyebrow) {
+  color: #667788;
+  font-size: 1.15rem;
+}
+
+.eyebrow {
+  color: #637083;
+  font-size: .78rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+}
+
+.section-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.posts {
+  display: grid;
+  gap: 18px;
+  padding-bottom: 60px;
+}
+
+.post-card, .composer, .auth-card, .page {
+  background: white;
+  border: 1px solid #e4e8ed;
+  border-radius: 18px;
+  padding: 28px;
+  box-shadow: 0 8px 30px rgba(20, 35, 50, .05);
+}
+
+.post-card h3 {
+  margin: 6px 0 12px;
+  font-size: 1.45rem;
+}
+
+.post-date, .muted {
+  color: #788795;
+  font-size: .9rem;
+}
+
+.post-body {
+  white-space: normal;
+  color: #43515f;
+}
+
+.page {
+  margin: 70px 0;
+}
+
+.narrow {
+  max-width: 760px;
+}
+
+.footer {
+  padding: 30px 0 50px;
+  color: #8995a1;
+}
+
+.hidden { display: none !important; }
+
+.link-button {
+  border: 0;
+  background: none;
+  color: #52606d;
+  font: inherit;
+  cursor: pointer;
+  padding: 0;
+}
+
+.auth-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+}
+
+.auth-card {
+  width: min(100%, 420px);
+}
+
+.auth-card h1 {
+  margin-bottom: 4px;
+}
+
+label {
+  display: grid;
+  gap: 7px;
+  margin: 18px 0;
+  font-weight: 650;
+}
+
+input, textarea {
+  width: 100%;
+  border: 1px solid #d8dee5;
+  border-radius: 12px;
+  padding: 13px 14px;
+  font: inherit;
+  background: #fbfcfd;
+  color: inherit;
+}
+
+input:focus, textarea:focus {
+  outline: 3px solid rgba(60, 120, 220, .14);
+  border-color: #6c8fd5;
+}
+
+.primary-button {
+  border: 0;
+  border-radius: 10px;
+  padding: 11px 20px;
+  background: #17202a;
+  color: white;
+  font: inherit;
+  font-weight: 750;
+  cursor: pointer;
+}
+
+.auth-card .primary-button {
+  width: 100%;
+  margin: 8px 0 16px;
+}
+
+.error { color: #b42318; }
+.success { color: #087443; }
+
+.admin-page {
+  padding: 60px 0;
+}
+
+.composer {
+  margin-bottom: 40px;
+}
+
+.composer-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.composer-header span {
+  display: block;
+  color: #7a8794;
+  font-size: .88rem;
+}
+
+.avatar {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: #e9eef5;
+  font-weight: 800;
+}
+
+#title {
+  font-size: 1.2rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+#body {
+  resize: vertical;
+  min-height: 180px;
+}
+
+.composer-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-top: 14px;
+}
+
+.post-actions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.delete-button {
+  border: 0;
+  background: transparent;
+  color: #b42318;
+  cursor: pointer;
+}
+
+.empty {
+  padding: 40px;
+  text-align: center;
+  background: white;
+  border: 1px dashed #d7dde4;
+  border-radius: 18px;
+  color: #7b8794;
+}
+
+@media (max-width: 650px) {
+  .nav { align-items: flex-start; padding: 15px 0; }
+  .nav nav { flex-wrap: wrap; justify-content: flex-end; }
+  .hero { padding-top: 55px; }
+  .post-card, .composer, .auth-card, .page { padding: 21px; }
+}

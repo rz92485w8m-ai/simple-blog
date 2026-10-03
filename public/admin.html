@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Write — Simple Blog</title>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+  <header class="site-header">
+    <div class="container nav">
+      <a class="brand" href="/">Simple Blog</a>
+      <nav>
+        <a href="/">Home</a>
+        <button id="logoutButton" class="link-button">Logout</button>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container admin-page">
+    <section class="composer">
+      <div class="composer-header">
+        <div class="avatar">A</div>
+        <div>
+          <strong id="welcomeName">Author</strong>
+          <span>Write a new post</span>
+        </div>
+      </div>
+
+      <form id="postForm">
+        <input id="title" name="title" maxlength="200" placeholder="Post title" required>
+        <textarea id="body" name="body" maxlength="20000" rows="10"
+          placeholder="What's on your mind?" required></textarea>
+
+        <div class="composer-footer">
+          <span class="muted">Your post will be public.</span>
+          <button class="primary-button" type="submit">Post</button>
+        </div>
+
+        <p id="postMessage" class="message"></p>
+      </form>
+    </section>
+
+    <section>
+      <h2>Your recent posts</h2>
+      <div id="adminPosts" class="posts"></div>
+    </section>
+  </main>
+
+  <script src="/js/admin.js"></script>
+</body>
+</html>
