@@ -27,58 +27,6 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 
-function renderMarkdown(markdown) {
-  const safe = escapeHtml(markdown || "").replace(/\r\n?/g, "\n");
-  const inline = (text) => text
-    .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-    .replace(/\*\*([^*\n]+)\*\*/g, "<strong>$1</strong>")
-    .replace(/\*([^*\n]+)\*/g, "<em>$1</em>");
-
-  const lines = safe.split("\n");
-  let html = "";
-  let inList = false;
-
-  const closeList = () => {
-    if (inList) {
-      html += "</ul>";
-      inList = false;
-    }
-  };
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-
-    if (!trimmed) {
-      closeList();
-      continue;
-    }
-
-    const list = trimmed.match(/^[-*]\s+(.+)$/);
-    if (list) {
-      if (!inList) {
-        html += "<ul>";
-        inList = true;
-      }
-      html += `<li>${inline(list[1])}</li>`;
-      continue;
-    }
-
-    closeList();
-
-    const heading = trimmed.match(/^(#{1,3})\s+(.+)$/);
-    if (heading) {
-      const level = heading[1].length;
-      html += `<h${level}>${inline(heading[2])}</h${level}>`;
-      continue;
-    }
-
-    html += `<p>${inline(trimmed)}</p>`;
-  }
-
-  closeList();
-  return html;
-}
-
 function formatDate(value) {
   return new Date(value).toLocaleDateString(undefined, {
     year: "numeric",
