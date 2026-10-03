@@ -35,6 +35,22 @@ function formatDate(value) {
   });
 }
 
+
+function makeExcerpt(markdown, maxLength = 220) {
+  const text = String(markdown || "")
+    .replace(/!\[[^\]]*\]\([^)]+\)/g, "")
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, "$1")
+    .replace(/^#{1,6}\s+/gm, "")
+    .replace(/^\s*[-*+]\s+/gm, "")
+    .replace(/[*_`>#]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return text.length > maxLength
+    ? text.slice(0, maxLength).trimEnd() + "…"
+    : text;
+}
+
 async function loadPosts() {
   const container = document.querySelector("#posts");
   if (!container) return;
@@ -52,7 +68,7 @@ async function loadPosts() {
       ${post.cover_image_url ? `<img class="card-cover" src="${escapeHtml(post.cover_image_url)}" alt="">` : ""}
       <p class="post-date">${formatDate(post.created_at)} · ${escapeHtml(post.username)}</p>
       <h3><a class="post-title-link" href="/p/${encodeURIComponent(post.slug)}">${escapeHtml(post.title)}</a></h3>
-      <div class="post-body post-excerpt">${renderMarkdown(post.body.length > 260 ? post.body.slice(0, 260) + "…" : post.body)}</div>
+      <div class="post-body post-excerpt">${escapeHtml(makeExcerpt(post.body))}</div>
       <a class="read-more" href="/p/${encodeURIComponent(post.slug)}">Read post →</a>
     </article>
   `).join("");

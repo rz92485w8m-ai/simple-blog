@@ -240,6 +240,17 @@ app.get("/health", (req, res) => {
   res.json({ ok: true });
 });
 
+
+app.use((req, res, next) => {
+  if (req.path.startsWith("/api/")) {
+    return res.status(404).json({ error: "Not found." });
+  }
+  if (req.method === "GET") {
+    return res.status(404).sendFile(path.join(__dirname, "public", "404.html"));
+  }
+  next();
+});
+
 const port = process.env.PORT || 3000;
 app.listen(port, "0.0.0.0", () => {
   console.log(`Blog running on http://localhost:${port}`);

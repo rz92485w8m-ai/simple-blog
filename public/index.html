@@ -1,42 +1,46 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Simple Blog</title>
-  <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-  <header class="site-header">
-    <div class="container nav">
-      <a class="brand" href="/">Simple Blog</a>
-      <nav>
-        <a href="/">Home</a>
-        <a href="/about.html">About</a>
-        <a id="adminLink" class="hidden" href="/admin.html">Write</a>
-        <a id="loginLink" href="/login.html">Login</a>
-        <button id="logoutButton" class="link-button hidden">Logout</button>
-      </nav>
-    </div>
-  </header>
-
-  <main class="container">
-    <section class="hero">
-      <p class="eyebrow">WELCOME</p>
-      <h1>Stories, ideas and things worth sharing.</h1>
-      <p>A clean little blog powered by HTML, CSS, JavaScript, Node.js and PostgreSQL.</p>
-    </section>
-
-    <section>
-      <div class="section-heading">
-        <h2>Latest posts</h2>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Simple Blog</title>
+    <meta
+      name="description"
+      content="Stories, ideas and things worth sharing."
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <header class="site-header">
+      <div class="container nav">
+        <a class="brand" href="/">Simple Blog</a>
+        <nav>
+          <a href="/">Home</a>
+          <a href="/about.html">About</a>
+          <a id="adminLink" class="hidden" href="/admin.html">Write</a>
+          <a id="loginLink" href="/login.html">Login</a>
+          <button id="logoutButton" class="link-button hidden">Logout</button>
+        </nav>
       </div>
-      <div id="posts" class="posts"></div>
-    </section>
-  </main>
+    </header>
 
-  <footer class="container footer">© 2026 Simple Blog</footer>
-  <script src="/js/markdown.js"></script>
-  <script src="/js/main.js"></script>
-</body>
+    <main class="container">
+      <section class="hero">
+        <p class="eyebrow">WELCOME</p>
+        <h1>Stories, ideas and things worth sharing.</h1>
+      </section>
+
+      <section>
+        <div class="section-heading">
+          <h2>Latest posts</h2>
+        </div>
+        <div id="posts" class="posts"></div>
+      </section>
+    </main>
+
+    <footer class="container footer">© 2026 Simple Blog</footer>
+    <script src="/js/markdown.js"></script>
+    <script src="/js/site.js"></script>
+    <script src="/js/main.js"></script>
+  </body>
 </html>
