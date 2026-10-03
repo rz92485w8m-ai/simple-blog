@@ -28,10 +28,13 @@ function escapeHtml(value) {
 }
 
 function formatDate(value) {
-  return new Date(value).toLocaleDateString(undefined, {
-    year: "numeric",
+  return new Date(value).toLocaleString("en-GB", {
+    day: "numeric",
     month: "long",
-    day: "numeric"
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
   });
 }
 

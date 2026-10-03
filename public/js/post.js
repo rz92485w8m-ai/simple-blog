@@ -7,10 +7,13 @@ function escapeHtml(value) {
     .replaceAll("'", "&#039;");
 }
 function formatDate(value) {
-  return new Date(value).toLocaleDateString(undefined, {
-    year: "numeric",
-    month: "long",
+  return new Date(value).toLocaleString("en-GB", {
     day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false
   });
 }
 (async () => {
