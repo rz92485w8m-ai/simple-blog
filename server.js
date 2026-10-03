@@ -125,6 +125,23 @@ app.get("/api/posts", async (req, res) => {
   }
 });
 
+app.get("/api/posts/:id", async (req, res) => {
+  try {
+    const result = await pool.query(`
+      select posts.id, posts.title, posts.body, posts.created_at, users.username
+      from posts
+      join users on users.id = posts.author_id
+      where posts.id = $1
+    `, [req.params.id]);
+
+    if (!result.rowCount) return res.status(404).json({ error: "Post not found." });
+    res.json(result.rows[0]);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Could not load the post." });
+  }
+});
+
 app.post("/api/posts", requireLogin, async (req, res) => {
   try {
     const title = String(req.body.title || "").trim();
@@ -152,6 +169,25 @@ app.post("/api/posts", requireLogin, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Could not publish the post." });
+  }
+});
+
+app.put("/api/posts/:id", requireLogin, async (req, res) => {
+  try {
+    const title = String(req.body.title || "").trim();
+    const body = String(req.body.body || "").trim();
+    if (!title || !body) return res.status(400).json({ error: "Title and post text are required." });
+    if (title.length > 200 || body.length > 20000) return res.status(400).json({ error: "The post is too long." });
+
+    const result = await pool.query(
+      `update posts set title = $1, body = $2 where id = $3 and author_id = $4 returning id, title, body, created_at`,
+      [title, body, req.params.id, req.session.user.id]
+    );
+    if (!result.rowCount) return res.status(404).json({ error: "Post not found." });
+    res.json({ ...result.rows[0], username: req.session.user.username });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Could not update the post." });
   }
 });
 
