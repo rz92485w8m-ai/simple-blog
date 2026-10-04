@@ -13,3 +13,13 @@ This build adds: CSRF tokens for state-changing API requests, session regenerati
 
 ## Remaining hardening option
 `express-session` still uses its default in-memory session store in this small single-instance build. That does not expose the admin password, but sessions are lost on a server restart and the default store is not intended for scaled production use. Before scaling beyond one small instance, move sessions to a persistent store such as PostgreSQL/Redis.
+
+
+## Persistent sessions
+Sessions are now stored in PostgreSQL (`user_sessions`) instead of Express MemoryStore.
+Run `persistent-sessions-migration.sql` once before deploying this build.
+The session table has Row Level Security enabled and access revoked from Supabase `anon` and `authenticated` roles.
+The Node server accesses it through the PostgreSQL connection only.
+
+Session cookies are HttpOnly, SameSite=Lax, Secure in production, and use an 8-hour rolling expiry.
+Expired session rows are cleaned up hourly by the server.

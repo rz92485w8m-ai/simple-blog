@@ -33,6 +33,52 @@ const pool = new Pool({
   ssl: { rejectUnauthorized: false }
 });
 
+
+class PostgresSessionStore extends session.Store {
+  constructor(dbPool) {
+    super();
+    this.pool = dbPool;
+  }
+
+  get(sid, callback) {
+    this.pool.query(
+      "select sess from user_sessions where sid = $1 and expire > now()",
+      [sid]
+    ).then((result) => {
+      if (!result.rowCount) return callback(null, null);
+      callback(null, result.rows[0].sess);
+    }).catch(callback);
+  }
+
+  set(sid, sess, callback = () => {}) {
+    const maxAge = sess.cookie?.maxAge || (1000 * 60 * 60 * 8);
+    const expire = new Date(Date.now() + maxAge);
+    this.pool.query(
+      `insert into user_sessions (sid, sess, expire)
+       values ($1, $2::jsonb, $3)
+       on conflict (sid)
+       do update set sess = excluded.sess, expire = excluded.expire`,
+      [sid, JSON.stringify(sess), expire]
+    ).then(() => callback(null)).catch(callback);
+  }
+
+  destroy(sid, callback = () => {}) {
+    this.pool.query("delete from user_sessions where sid = $1", [sid])
+      .then(() => callback(null))
+      .catch(callback);
+  }
+
+  touch(sid, sess, callback = () => {}) {
+    const maxAge = sess.cookie?.maxAge || (1000 * 60 * 60 * 8);
+    const expire = new Date(Date.now() + maxAge);
+    this.pool.query(
+      "update user_sessions set expire = $2 where sid = $1",
+      [sid, expire]
+    ).then(() => callback(null)).catch(callback);
+  }
+}
+
+
 app.set("trust proxy", 1);
 app.use(helmet({
   contentSecurityPolicy: {
@@ -55,9 +101,11 @@ app.use(express.urlencoded({ extended: false }));
 
 app.use(session({
   name: "btp.sid",
+  store: new PostgresSessionStore(pool),
   secret: process.env.SESSION_SECRET,
   resave: false,
   saveUninitialized: false,
+  rolling: true,
   cookie: {
     httpOnly: true,
     sameSite: "lax",
@@ -66,6 +114,13 @@ app.use(session({
   }
 }));
 
+
+
+const sessionCleanupTimer = setInterval(() => {
+  pool.query("delete from user_sessions where expire <= now()")
+    .catch((err) => console.error("Session cleanup failed:", err.message));
+}, 1000 * 60 * 60);
+sessionCleanupTimer.unref();
 
 function getCsrfToken(req) {
   if (!req.session.csrfToken) req.session.csrfToken = crypto.randomBytes(32).toString("hex");
