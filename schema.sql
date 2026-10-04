@@ -14,3 +14,6 @@ create table if not exists posts (
 );
 
 create index if not exists posts_created_at_idx on posts(created_at desc);
+
+alter table posts add column if not exists excerpt varchar(320);
+alter table posts add column if not exists categories varchar(200);

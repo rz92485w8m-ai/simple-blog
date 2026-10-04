@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width,initial-scale=1" />
-    <title>Write — Simple Blog</title>
+    <title>Write — Beyond the Persona</title>
     <meta
       name="description"
       content="Stories, ideas and things worth sharing."
@@ -13,7 +13,7 @@
   <body>
     <header class="site-header">
       <div class="container nav">
-        <a class="brand" href="/">Simple Blog</a>
+        <a class="brand" href="/">Beyond the Persona</a>
         <nav>
           <a href="/">Home</a
           ><button id="logoutButton" class="link-button">Logout</button>
@@ -30,12 +30,12 @@
           </div>
         </div>
         <form id="postForm">
-          <input id="title" maxlength="200" placeholder="Post title" required />
+          <input id="title" maxlength="200" placeholder="Essay title" required /><textarea id="excerpt" maxlength="320" rows="3" placeholder="Short description / excerpt for essay cards"></textarea><input id="categories" maxlength="200" placeholder="Topics, comma separated — e.g. Technology, Identity" />
           <div class="editor-toolbar">
             <button type="button" data-wrap="**">Bold</button
             ><button type="button" data-wrap="*">Italic</button
             ><button type="button" data-prefix="## ">Heading</button
-            ><button type="button" data-prefix="- ">List</button>
+            ><button type="button" data-prefix="- ">List</button><button type="button" id="linkButton">Link</button>
           </div>
           <textarea
             id="body"
@@ -89,6 +89,35 @@
         <div id="adminPosts" class="posts"></div>
       </section>
     </main>
+
+    <div id="previewModal" class="preview-modal hidden" role="dialog" aria-modal="true" aria-labelledby="previewHeading">
+      <div class="preview-backdrop" data-close-preview></div>
+      <section class="preview-dialog">
+        <div class="preview-toolbar"><strong id="previewHeading">Essay preview</strong><button id="closePreviewButton" class="secondary-button" type="button">Close</button></div>
+        <article id="previewArticle" class="preview-article"></article>
+      </section>
+    </div>
+
+    <div id="linkModal" class="preview-modal hidden" role="dialog" aria-modal="true" aria-labelledby="linkModalHeading">
+      <div class="preview-backdrop" data-close-link></div>
+      <section class="preview-dialog" style="max-width:560px">
+        <div class="preview-toolbar">
+          <strong id="linkModalHeading">Add link</strong>
+          <button id="closeLinkButton" class="secondary-button" type="button">Close</button>
+        </div>
+        <div style="padding:24px">
+          <label for="linkText">Link text</label>
+          <input id="linkText" type="text" placeholder="Text readers will see">
+          <label for="linkUrl">Web address</label>
+          <input id="linkUrl" type="url" placeholder="https://example.com">
+          <p id="linkError" class="error"></p>
+          <div class="composer-buttons" style="margin-top:18px">
+            <button id="insertLinkButton" class="primary-button" type="button">Insert link</button>
+          </div>
+        </div>
+      </section>
+    </div>
+
     <script src="/js/markdown.js"></script>
     <script src="/js/site.js"></script>
     <script src="/js/admin.js"></script>
