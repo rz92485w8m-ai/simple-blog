@@ -119,15 +119,43 @@ async function main() {
   }
   await page.goto(previewBase + "/essays.html");
   await page.getByRole("button", { name: "Identity", exact: true }).click();
-  assert.equal(await page.locator(".essay-card").count(), 2);
+  assert.equal(await page.locator(".essay-card").count(), 1);
   assert.equal(
     await page
       .getByRole("button", { name: "Identity", exact: true })
       .getAttribute("aria-pressed"),
     "true",
   );
-  assert.match(await page.locator("#resultsStatus").textContent(), /2 essays/);
+  assert.match(await page.locator("#resultsStatus").textContent(), /1 essay/);
   passed("Topic filters and live result counts");
+  await page.goto(previewBase + "/essays.html?topic=Artificial%20Intelligence");
+  await page.waitForFunction(() =>
+    document
+      .querySelector("#resultsStatus")
+      .textContent.includes("Artificial Intelligence"),
+  );
+  assert.equal(await page.locator(".essay-card").count(), 1);
+  assert.equal(
+    await page
+      .getByRole("button", { name: "Artificial Intelligence", exact: true })
+      .getAttribute("aria-pressed"),
+    "true",
+  );
+  passed("Human–AI theme link selects the existing archive category");
+  for (const name of [
+    "mediterranean-panorama",
+    "mediterranean-hero",
+    "human-ai-symbiosis",
+    "philosophy-terrace",
+  ]) {
+    const response = await context.request.get(
+      `${previewBase}/images/${name}.webp`,
+    );
+    assert.equal(response.status(), 200);
+    assert.match(response.headers()["content-type"], /image\/webp/);
+  }
+  passed("Locally hosted artwork is served with correct image types");
+
   await page.goto(previewBase + "/");
   await page.keyboard.press("Tab");
   assert.equal(
@@ -222,6 +250,14 @@ async function main() {
   );
   await page.unroute("**/api/posts/slug/**");
   passed("Escaped content and existing Markdown formatting");
+  await page.goto(previewBase + "/p/preview-mind-and-machine");
+  await page.locator(".article-illustration img").waitFor();
+  assert.match(
+    await page.locator(".article-illustration img").getAttribute("src"),
+    /human-ai-symbiosis/,
+  );
+  passed("Article fallback imagery follows the essay topic");
+
   // Test unusually long titles, topic strings and optional cover images.
   await page.route("**/api/posts", (r) =>
     r.fulfill({
@@ -425,13 +461,11 @@ async function main() {
       body: '<svg xmlns="http://www.w3.org/2000/svg" width="600" height="400"><rect width="600" height="400" fill="#d6cec1"/></svg>',
     }),
   );
-  await page
-    .locator("#coverImage")
-    .setInputFiles({
-      name: "test.png",
-      mimeType: "image/png",
-      buffer: Buffer.from("isolated upload UI test"),
-    });
+  await page.locator("#coverImage").setInputFiles({
+    name: "test.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("isolated upload UI test"),
+  });
   await page.getByText("Uploaded", { exact: true }).waitFor();
   assert.match(await page.locator("#coverUrl").inputValue(), /test-cover.svg/);
   assert.equal(await page.locator("#coverPreview").isVisible(), true);
@@ -498,6 +532,18 @@ async function main() {
       await page.goto(previewBase + url);
       await page.waitForFunction(
         () => !document.querySelector('[aria-busy="true"]'),
+      );
+      await page.evaluate(async () => {
+        const images = [...document.images];
+        images.forEach((img) => (img.loading = "eager"));
+        await Promise.all(images.map((img) => img.decode().catch(() => {})));
+      });
+      assert.equal(
+        await page.evaluate(() =>
+          [...document.images].every((img) => img.naturalWidth > 0),
+        ),
+        true,
+        `${name}: all artwork loads`,
       );
       await page.screenshot({
         path: path.join(screenshotDir, `${name}-${device}.png`),

@@ -1,26 +1,27 @@
-/* Shared by published essays and the author preview. No editor layout rules. */
+/* Shared by published essays and the author preview; no editor-layout rules. */
 .article-shell {
-  max-width: 1000px;
+  max-width: 1040px;
 }
 .article-page {
-  padding: 75px 0 90px;
+  padding: 60px 0 85px;
 }
 .article-header {
-  max-width: 850px;
-  margin: 0 auto 40px;
+  max-width: 860px;
+  margin: 0 auto 36px;
   text-align: left;
 }
 .article-topics {
   font:
-    500 0.72rem/1.6 system-ui,
+    500 0.85rem/1.7 system-ui,
     sans-serif;
   letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: #806044;
+  color: #751a2a;
 }
 .article-header h1 {
+  color: #751a2a;
   font:
-    400 clamp(2.8rem, 5.8vw, 5rem)/1.12 Georgia,
+    400 clamp(2.8rem, 5.8vw, 4.8rem)/1.12 Georgia,
     "Times New Roman",
     serif;
   letter-spacing: -0.04em;
@@ -29,17 +30,17 @@
 }
 .article-deck {
   font:
-    400 clamp(1.2rem, 2.3vw, 1.55rem)/1.5 Georgia,
+    400 clamp(1.3rem, 2.3vw, 1.65rem)/1.55 Georgia,
     serif;
-  color: #686259;
+  color: #53514d;
   max-width: 65ch;
   margin: 0 0 24px;
 }
 .article-date {
   font:
-    0.8rem/1.6 system-ui,
-    sans-serif;
-  color: #686259;
+    1rem/1.6 Georgia,
+    serif;
+  color: #53514d;
 }
 .article-cover {
   width: 100%;
@@ -47,14 +48,30 @@
   max-height: none;
   border-radius: 0;
   object-fit: contain;
-  margin: 0 0 52px;
+  margin: 0 0 48px;
+}
+.article-illustration {
+  margin: 0 0 48px;
+}
+.article-illustration img {
+  width: 100%;
+  height: auto;
+  max-height: 440px;
+  object-fit: cover;
+}
+.article-illustration figcaption {
+  font:
+    0.9rem/1.6 system-ui,
+    sans-serif;
+  color: #53514d;
+  margin-top: 12px;
 }
 .article-content {
   width: min(66ch, 100%);
   margin-inline: auto;
-  color: #292824;
+  color: #202f40;
   font:
-    1.2rem/1.8 Georgia,
+    1.25rem/1.85 Georgia,
     "Times New Roman",
     serif;
   overflow-wrap: break-word;
@@ -65,6 +82,7 @@
 .article-content h1,
 .article-content h2,
 .article-content h3 {
+  color: #751a2a;
   font-family: Georgia, serif;
   font-weight: 400;
   line-height: 1.25;
@@ -89,21 +107,21 @@
   margin-bottom: 0.5em;
 }
 .article-content a {
-  color: #806044;
+  color: #751a2a;
   text-decoration: underline;
   text-underline-offset: 4px;
 }
 .article-end {
   width: min(66ch, 100%);
   margin: 55px auto 0;
-  border-top: 1px solid #d6cec1;
+  border-top: 1px solid #d6c7b2;
   padding-top: 24px;
   font:
-    0.9rem system-ui,
-    sans-serif;
+    1rem Georgia,
+    serif;
 }
 .article-end a {
-  color: #806044;
+  color: #751a2a;
   text-underline-offset: 5px;
 }
 .preview-article .article-header {
@@ -117,7 +135,7 @@
 }
 @media (max-width: 650px) {
   .article-page {
-    padding-block: 48px 65px;
+    padding-block: 40px 60px;
   }
   .article-header {
     margin-bottom: 30px;
@@ -125,17 +143,21 @@
   .article-header h1 {
     font-size: clamp(2.5rem, 10vw, 3.8rem);
   }
-  .article-cover {
+  .article-cover,
+  .article-illustration {
     margin-bottom: 32px;
   }
   .article-content {
-    font-size: 1.125rem;
-    line-height: 1.8;
+    font-size: 1.2rem;
+    line-height: 1.85;
   }
   .article-content h2 {
     font-size: 1.8rem;
   }
   .article-content h3 {
     font-size: 1.45rem;
+  }
+  .article-date {
+    font-size: 1rem;
   }
 }

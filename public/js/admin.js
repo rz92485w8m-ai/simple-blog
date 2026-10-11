@@ -104,7 +104,7 @@ function closePreview() { $("#previewModal").classList.add("hidden"); document.b
 $("#previewButton").onclick = () => {
   const cover = $("#coverUrl").value;
   const categoryText = topics().map(esc).join(" · ") || "ESSAY";
-  $("#previewArticle").innerHTML = `<header class="article-header"><p class="article-topics">${categoryText}</p><h1>${esc($("#title").value || "Untitled essay")}</h1>${$("#excerpt").value ? `<p class="article-deck">${esc($("#excerpt").value)}</p>` : ""}<p class="article-date">Preview · Paula Cezara Codrea</p></header>${cover ? `<img class="article-cover" src="${esc(cover)}" alt="">` : ""}<div class="article-content">${renderMarkdown($("#body").value)}</div>`;
+  $("#previewArticle").innerHTML = `<header class="article-header"><p class="article-topics">${categoryText}</p><h1>${esc($("#title").value || "Untitled essay")}</h1>${$("#excerpt").value ? `<p class="article-deck">${esc($("#excerpt").value)}</p>` : ""}<p class="article-date">Preview · Paula Cezara Codrea</p></header>${cover ? `<img class="article-cover" src="${esc(cover)}" alt="">` : window.EssayUI.artworkMarkup({categories: $("#categories").value})}<div class="article-content">${renderMarkdown($("#body").value)}</div>`;
   $("#previewModal").classList.remove("hidden"); document.body.style.overflow = "hidden";
 };
 $("#closePreviewButton").onclick = closePreview;

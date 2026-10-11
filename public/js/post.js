@@ -47,7 +47,7 @@
       )
         throw new Error("Unexpected response");
       metadata(post);
-      box.innerHTML = `<header class="article-header"><p class="article-topics">${ui.topics(post).map(ui.escape).join(" · ") || "Essay"}</p><h1>${ui.escape(post.title)}</h1>${post.excerpt ? `<p class="article-deck">${ui.escape(post.excerpt)}</p>` : ""}<p class="article-date">Paula Cezara Codrea · ${ui.dateMarkup(post.created_at)}</p></header>${post.cover_image_url ? `<img class="article-cover" src="${ui.escape(post.cover_image_url)}" alt="">` : ""}<div class="article-content">${renderMarkdown(post.body)}</div><div class="article-end"><a href="/essays.html">← All essays</a></div>`;
+      box.innerHTML = `<header class="article-header"><p class="article-topics">${ui.topics(post).map(ui.escape).join(" · ") || "Essay"}</p><h1>${ui.escape(post.title)}</h1>${post.excerpt ? `<p class="article-deck">${ui.escape(post.excerpt)}</p>` : ""}<p class="article-date">Paula Cezara Codrea · ${ui.dateMarkup(post.created_at)}</p></header>${post.cover_image_url ? `<img class="article-cover" src="${ui.escape(post.cover_image_url)}" alt="">` : ui.artworkMarkup(post)}<div class="article-content">${renderMarkdown(post.body)}</div><div class="article-end"><a href="/essays.html">← All essays</a></div>`;
       box.setAttribute("aria-busy", "false");
     } catch (error) {
       if (error.status === 404) return notFound();

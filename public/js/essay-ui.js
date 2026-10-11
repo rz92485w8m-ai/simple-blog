@@ -44,9 +44,40 @@ window.EssayUI = (() => {
       ? `<time datetime="${escape(new Date(value).toISOString())}">${label}</time>`
       : "";
   };
+  // Existing author-uploaded covers always take precedence. Fallback artwork is
+  // editorial decoration only and never changes post data or storage.
+  const artwork = (post) => {
+    if (post.cover_image_url)
+      return { src: post.cover_image_url, className: "thumb-uploaded" };
+    const categoryText = topics(post).join(" ").toLowerCase();
+    if (/artificial|intelligence|technology|machine|\bai\b/.test(categoryText))
+      return {
+        src: "/images/human-ai-symbiosis.webp",
+        className: "thumb-symbiosis",
+      };
+    if (/life|reflection|human condition/.test(categoryText))
+      return {
+        src: "/images/mediterranean-hero.webp",
+        className: "thumb-statue",
+      };
+    if (/consciousness|identity|psychology|awareness/.test(categoryText))
+      return {
+        src: "/images/mediterranean-hero.webp",
+        className: "thumb-portrait",
+      };
+    return {
+      src: "/images/philosophy-terrace.webp",
+      className: "thumb-terrace",
+    };
+  };
+  const artworkMarkup = (post, className = "article-illustration") => {
+    const image = artwork(post);
+    return `<figure class="${className}"><img src="${escape(image.src)}" alt="" width="${image.className === "thumb-terrace" ? 1536 : 2172}" height="${image.className === "thumb-terrace" ? 1024 : 724}" loading="lazy"><figcaption>Editorial artwork · ${/thumb-symbiosis/.test(image.className) ? "human and artificial intelligence in dialogue" : "a classical Mediterranean setting"}</figcaption></figure>`;
+  };
   const card = (post, index = 0) => {
     const href = "/p/" + encodeURIComponent(post.slug);
-    return `<article class="essay-card${post.cover_image_url ? "" : " no-cover"}"><div class="essay-index"><span aria-hidden="true">${String(index + 1).padStart(2, "0")} /</span>${dateMarkup(post.created_at)}</div><div class="essay-card-copy"><div class="essay-topics">${topics(post).map(escape).join(" · ") || "Essay"}</div><h3><a class="essay-title" href="${href}">${escape(post.title)}</a></h3><p>${escape(excerpt(post))}</p><a class="text-link" href="${href}" aria-label="Read ${escape(post.title)}">Read essay <span aria-hidden="true">→</span></a></div>${post.cover_image_url ? `<a class="essay-thumb" href="${href}" tabindex="-1" aria-hidden="true"><img src="${escape(post.cover_image_url)}" alt="" loading="lazy" decoding="async"></a>` : ""}</article>`;
+    const image = artwork(post);
+    return `<article class="essay-card"><a class="essay-thumb ${image.className}" href="${href}" tabindex="-1" aria-hidden="true"><img src="${escape(image.src)}" alt="" width="${image.className === "thumb-terrace" ? 1536 : 2172}" height="${image.className === "thumb-terrace" ? 1024 : 724}" loading="lazy" decoding="async"></a><div class="essay-card-copy"><div class="essay-topics"><span class="essay-number" aria-hidden="true">${String(index + 1).padStart(2, "0")} /</span> ${topics(post).map(escape).join(" · ") || "Essay"}</div><h3><a class="essay-title" href="${href}">${escape(post.title)}</a></h3><p>${escape(excerpt(post))}</p><div class="essay-card-footer">${dateMarkup(post.created_at)}<a class="read-arrow" href="${href}" aria-label="Read ${escape(post.title)}"><span aria-hidden="true">→</span></a></div></div></article>`;
   };
   async function request(url) {
     const controller = new AbortController();
@@ -80,6 +111,8 @@ window.EssayUI = (() => {
     date,
     dateMarkup,
     card,
+    artwork,
+    artworkMarkup,
     request,
     errorState,
     loading,

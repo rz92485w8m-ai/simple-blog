@@ -10,7 +10,7 @@ const samplePosts = [
     slug: "preview-the-question-of-self",
     title: "The question of self",
     excerpt:
-      "A demonstration of the redesigned reading experience. This is sample layout content, not an essay by Paula.",
+      "Preview-only sample. A closer look at how we construct identity, and what remains when the roles fall away.",
     categories: "Consciousness, Identity",
     created_at: "2026-01-03T12:00:00Z",
     cover_image_url: null,
@@ -21,7 +21,7 @@ const samplePosts = [
     slug: "preview-mind-and-machine",
     title: "Mind and machine",
     excerpt:
-      "Sample layout content for an essay about artificial intelligence. Not authored or published by Paula.",
+      "Preview-only sample. Exploring the relationship between human intelligence and artificial intelligence.",
     categories: "Artificial Intelligence, Philosophy",
     created_at: "2026-01-02T12:00:00Z",
     cover_image_url: null,
@@ -30,11 +30,11 @@ const samplePosts = [
   {
     id: 3,
     slug: "preview-a-human-perspective",
-    title: "A human perspective",
+    title: "A more human future",
     excerpt:
-      "A third sample entry to demonstrate the homepage and topic filters. Not a real essay.",
-    categories: "Psychology, Identity",
-    created_at: "2026-01-01T12:00:00Z",
+      "Preview-only sample. On what we can choose, what we can shape, and what still matters.",
+    categories: "Life, Reflection",
+    created_at: "2025-12-28T12:00:00Z",
     cover_image_url: null,
     body: "Preview-only sample content.\n\n## The human condition\n\nA short demonstration of the literary page design.",
   },
@@ -45,6 +45,7 @@ const types = {
   ".js": "text/javascript; charset=utf-8",
   ".png": "image/png",
   ".svg": "image/svg+xml",
+  ".webp": "image/webp",
 };
 const server = http.createServer((req, res) => {
   res.setHeader(
@@ -102,8 +103,8 @@ const server = http.createServer((req, res) => {
         body
           .toString()
           .replace(
-            "<body>",
-            '<body><div class="preview-banner" role="note">LOCAL DESIGN PREVIEW · sample essays only · no database connection</div>',
+            /<body\b[^>]*>/,
+            '$&<div class="preview-banner" role="note">LOCAL DESIGN PREVIEW · sample essays only · no database connection</div>',
           ),
       );
     res.writeHead(200, {
@@ -114,8 +115,20 @@ const server = http.createServer((req, res) => {
 });
 if (require.main === module) {
   const port = Number(process.env.PREVIEW_PORT || 3001);
-  server.listen(port, "127.0.0.1", () =>
-    console.log(`Read-only design preview: http://localhost:${port}`),
-  );
+  const host = process.env.PREVIEW_HOST || "127.0.0.1";
+  server.on("error", (error) => {
+    console.error(
+      `Preview could not start on ${host}:${port}: ${error.message}`,
+    );
+    process.exitCode = 1;
+  });
+  server.listen(port, host, () => {
+    console.log(`Read-only design preview listening on ${host}:${port}`);
+    console.log(
+      host === "127.0.0.1"
+        ? `Open http://localhost:${port} on the same computer. Cloud workspaces require a supported forwarded-port URL.`
+        : `Use your cloud workspace's forwarded-port URL for port ${port}; a Windows localhost link will not reach this server.`,
+    );
+  });
 }
 module.exports = { server, samplePosts };

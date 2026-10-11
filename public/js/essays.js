@@ -40,7 +40,26 @@
               `<button type="button" aria-pressed="false" data-topic="${ui.escape(topic)}">${ui.escape(topic)}</button>`,
           )
           .join("");
-      draw();
+      const requested = new URLSearchParams(location.search).get("topic");
+      const selected =
+        requested &&
+        (allTopics.find(
+          (topic) => topic.toLowerCase() === requested.toLowerCase(),
+        ) ||
+          (requested === "Artificial Intelligence" &&
+            allTopics.find((topic) =>
+              /^(AI|Artificial Intelligence|Technology)$/i.test(topic),
+            )));
+      if (selected)
+        filters
+          .querySelectorAll("button")
+          .forEach((button) =>
+            button.setAttribute(
+              "aria-pressed",
+              String(button.dataset.topic === selected),
+            ),
+          );
+      draw(selected || "");
     } catch {
       ui.errorState(box, load);
     }
