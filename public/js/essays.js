@@ -1,5 +1,49 @@
-const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-const excerpt=p=>p.excerpt?.trim()||String(p.body||"").replace(/\[([^\]]+)\]\([^)]+\)/g,"$1").replace(/^#{1,6}\s+/gm,"").replace(/^\s*[-*+]\s+/gm,"").replace(/[*_`>#]/g,"").replace(/\s+/g," ").trim().slice(0,190)+"…";
-const topics=p=>(p.categories||"").split(",").map(x=>x.trim()).filter(Boolean);
-const card=p=>`<article class="essay-card"><a class="essay-thumb" href="/p/${encodeURIComponent(p.slug)}">${p.cover_image_url?`<img src="${esc(p.cover_image_url)}" alt="">`:`<span class="thumb-placeholder">BTP</span>`}</a><div class="essay-card-copy"><a class="essay-title" href="/p/${encodeURIComponent(p.slug)}">${esc(p.title)}</a><p>${esc(excerpt(p))}</p><div class="essay-meta"><span>${topics(p).map(esc).join(" · ")||"Essay"}</span><a href="/p/${encodeURIComponent(p.slug)}">→</a></div></div></article>`;
-(async()=>{const r=await fetch('/api/posts');const posts=await r.json();const all=[...new Set(posts.flatMap(topics))].sort();const filters=document.querySelector('#topicFilters'),box=document.querySelector('#essays');filters.innerHTML='<button class="active" data-topic="">All</button>'+all.map(t=>`<button data-topic="${esc(t)}">${esc(t)}</button>`).join('');function draw(topic=''){box.innerHTML=posts.filter(p=>!topic||topics(p).includes(topic)).map(card).join('')||'<div class="empty-editorial">No essays in this topic yet.</div>'}filters.onclick=e=>{if(e.target.tagName!=='BUTTON')return;filters.querySelectorAll('button').forEach(b=>b.classList.remove('active'));e.target.classList.add('active');draw(e.target.dataset.topic)};draw()})();
+(() => {
+  const ui = window.EssayUI;
+  const box = document.querySelector("#essays");
+  const filters = document.querySelector("#topicFilters");
+  const status = document.querySelector("#resultsStatus");
+  let posts = [];
+  function draw(topic = "") {
+    const selected = posts.filter(
+      (post) => !topic || ui.topics(post).includes(topic),
+    );
+    box.innerHTML =
+      selected.map(ui.card).join("") ||
+      '<p class="empty-editorial">No essays in this topic yet.</p>';
+    box.setAttribute("aria-busy", "false");
+    status.textContent = `${selected.length} ${selected.length === 1 ? "essay" : "essays"}${topic ? " · " + topic : ""}`;
+  }
+  filters.addEventListener("click", (event) => {
+    const button = event.target.closest("button[data-topic]");
+    if (!button) return;
+    filters
+      .querySelectorAll("button")
+      .forEach((item) =>
+        item.setAttribute("aria-pressed", String(item === button)),
+      );
+    draw(button.dataset.topic);
+  });
+  async function load() {
+    ui.loading(box, "Loading essays…");
+    filters.replaceChildren();
+    status.textContent = "";
+    try {
+      posts = await ui.request("/api/posts");
+      if (!Array.isArray(posts)) throw new Error("Unexpected response");
+      const allTopics = [...new Set(posts.flatMap(ui.topics))].sort();
+      filters.innerHTML =
+        '<button type="button" aria-pressed="true" data-topic="">All</button>' +
+        allTopics
+          .map(
+            (topic) =>
+              `<button type="button" aria-pressed="false" data-topic="${ui.escape(topic)}">${ui.escape(topic)}</button>`,
+          )
+          .join("");
+      draw();
+    } catch {
+      ui.errorState(box, load);
+    }
+  }
+  load();
+})();

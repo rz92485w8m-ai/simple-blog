@@ -1,5 +1,62 @@
-const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-const fmt=v=>new Date(v).toLocaleString("en-GB",{day:"numeric",month:"long",year:"numeric",hour:"2-digit",minute:"2-digit",hour12:false});
-const topics=p=>(p.categories||"").split(",").map(x=>x.trim()).filter(Boolean);
-function metadata(p){const desc=(p.excerpt||String(p.body||"").replace(/[*_#>`-]/g,"").replace(/\s+/g," ").trim()).slice(0,160);document.title=`${p.title} — Beyond the Persona`;let m=document.querySelector('meta[name="description"]');m.content=desc;const set=(prop,val)=>{let x=document.querySelector(`meta[property="${prop}"]`);if(!x){x=document.createElement('meta');x.setAttribute('property',prop);document.head.appendChild(x)}x.content=val};set('og:title',p.title);set('og:description',desc);set('og:type','article');set('og:url',location.href);if(p.cover_image_url)set('og:image',p.cover_image_url)}
-(async()=>{const box=document.querySelector('#singlePost');const match=location.pathname.match(/^\/p\/(.+)$/);if(!match){box.innerHTML='<h1>Essay not found</h1>';return}const r=await fetch(`/api/posts/slug/${encodeURIComponent(decodeURIComponent(match[1]))}`);if(!r.ok){box.innerHTML='<h1>Essay not found</h1><p><a href="/essays.html">Back to essays</a></p>';return}const p=await r.json();metadata(p);box.innerHTML=`<header class="article-header"><p class="article-topics">${topics(p).map(esc).join(' · ')||'ESSAY'}</p><h1>${esc(p.title)}</h1>${p.excerpt?`<p class="article-deck">${esc(p.excerpt)}</p>`:''}<p class="article-date">${fmt(p.created_at)} · Paula Cezara Codrea</p></header>${p.cover_image_url?`<img class="article-cover" src="${esc(p.cover_image_url)}" alt="">`:''}<div class="article-content">${renderMarkdown(p.body)}</div><div class="article-end"><a href="/essays.html">← All essays</a></div>`})();
+(() => {
+  const ui = window.EssayUI;
+  const box = document.querySelector("#singlePost");
+  function metadata(post) {
+    const description = (post.excerpt || ui.plainText(post.body)).slice(0, 160);
+    document.title = `${post.title} — Beyond the Persona`;
+    document.querySelector('meta[name="description"]').content = description;
+    const set = (property, value) => {
+      let element = document.querySelector(`meta[property="${property}"]`);
+      if (!element) {
+        element = document.createElement("meta");
+        element.setAttribute("property", property);
+        document.head.appendChild(element);
+      }
+      element.content = value;
+    };
+    set("og:title", post.title);
+    set("og:description", description);
+    set("og:type", "article");
+    set("og:url", location.href);
+    if (post.cover_image_url) set("og:image", post.cover_image_url);
+  }
+  function notFound() {
+    document.title = "Essay not found — Beyond the Persona";
+    box.innerHTML =
+      '<header class="article-header"><p class="kicker">The journal</p><h1>Essay not found.</h1><p>This essay may have moved or is not available.</p><a class="text-link" href="/essays.html">Back to essays <span aria-hidden="true">→</span></a></header>';
+    box.setAttribute("aria-busy", "false");
+  }
+  async function load() {
+    ui.loading(box, "Loading essay…");
+    const match = location.pathname.match(/^\/p\/([^/]+)\/?$/);
+    if (!match) return notFound();
+    let slug;
+    try {
+      slug = decodeURIComponent(match[1]);
+    } catch {
+      return notFound();
+    }
+    try {
+      const post = await ui.request(
+        `/api/posts/slug/${encodeURIComponent(slug)}`,
+      );
+      if (
+        !post ||
+        typeof post.title !== "string" ||
+        typeof post.body !== "string"
+      )
+        throw new Error("Unexpected response");
+      metadata(post);
+      box.innerHTML = `<header class="article-header"><p class="article-topics">${ui.topics(post).map(ui.escape).join(" · ") || "Essay"}</p><h1>${ui.escape(post.title)}</h1>${post.excerpt ? `<p class="article-deck">${ui.escape(post.excerpt)}</p>` : ""}<p class="article-date">Paula Cezara Codrea · ${ui.dateMarkup(post.created_at)}</p></header>${post.cover_image_url ? `<img class="article-cover" src="${ui.escape(post.cover_image_url)}" alt="">` : ""}<div class="article-content">${renderMarkdown(post.body)}</div><div class="article-end"><a href="/essays.html">← All essays</a></div>`;
+      box.setAttribute("aria-busy", "false");
+    } catch (error) {
+      if (error.status === 404) return notFound();
+      ui.errorState(
+        box,
+        load,
+        "The essay could not be loaded. Please try again.",
+      );
+    }
+  }
+  load();
+})();

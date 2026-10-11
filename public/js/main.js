@@ -1,5 +1,18 @@
-const esc=v=>String(v??"").replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;").replaceAll('"',"&quot;").replaceAll("'","&#039;");
-const excerpt=p=>p.excerpt?.trim()||String(p.body||"").replace(/\[([^\]]+)\]\([^)]+\)/g,"$1").replace(/^#{1,6}\s+/gm,"").replace(/^\s*[-*+]\s+/gm,"").replace(/[*_`>#]/g,"").replace(/\s+/g," ").trim().slice(0,170)+(String(p.body||"").length>170?"…":"");
-const topics=p=>(p.categories||"").split(",").map(x=>x.trim()).filter(Boolean);
-function card(p){return `<article class="essay-card"><a class="essay-thumb" href="/p/${encodeURIComponent(p.slug)}">${p.cover_image_url?`<img src="${esc(p.cover_image_url)}" alt="">`:`<span class="thumb-placeholder">BTP</span>`}</a><div class="essay-card-copy"><a class="essay-title" href="/p/${encodeURIComponent(p.slug)}">${esc(p.title)}</a><p>${esc(excerpt(p))}</p><div class="essay-meta"><span>${topics(p).map(esc).join(" · ")||"Essay"}</span><a href="/p/${encodeURIComponent(p.slug)}" aria-label="Read ${esc(p.title)}">→</a></div></div></article>`}
-(async()=>{const box=document.querySelector("#posts");try{const r=await fetch("/api/posts");const posts=await r.json();box.innerHTML=posts.length?posts.slice(0,3).map(card).join(""):'<div class="empty-editorial">New essays are coming soon.</div>';}catch{box.innerHTML='<div class="empty-editorial">Essays could not be loaded.</div>'}})();
+(() => {
+  const box = document.querySelector("#posts");
+  const ui = window.EssayUI;
+  async function load() {
+    ui.loading(box, "Loading essays…");
+    try {
+      const posts = await ui.request("/api/posts");
+      if (!Array.isArray(posts)) throw new Error("Unexpected response");
+      box.innerHTML = posts.length
+        ? posts.slice(0, 3).map(ui.card).join("")
+        : '<p class="empty-editorial" role="status">New essays are coming soon.</p>';
+      box.setAttribute("aria-busy", "false");
+    } catch {
+      ui.errorState(box, load);
+    }
+  }
+  load();
+})();

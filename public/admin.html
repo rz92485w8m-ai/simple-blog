@@ -9,6 +9,7 @@
       content="Stories, ideas and things worth sharing."
     />
     <link rel="stylesheet" href="/css/style.css" />
+    <link rel="stylesheet" href="/css/reading.css" />
   </head>
   <body>
     <header class="site-header">
@@ -30,14 +31,34 @@
           </div>
         </div>
         <form id="postForm">
-          <input id="title" maxlength="200" placeholder="Essay title" required /><textarea id="excerpt" maxlength="320" rows="3" placeholder="Short description / excerpt for essay cards"></textarea><input id="categories" maxlength="200" placeholder="Topics, comma separated — e.g. Technology, Identity" />
+          <label for="title">Essay title</label
+          ><input
+            id="title"
+            maxlength="200"
+            placeholder="Essay title"
+            required
+          /><label for="excerpt">Excerpt</label
+          ><textarea
+            id="excerpt"
+            maxlength="320"
+            rows="3"
+            placeholder="Short description / excerpt for essay cards"
+          ></textarea
+          ><label for="categories">Topics (comma separated)</label
+          ><input
+            id="categories"
+            maxlength="200"
+            placeholder="Topics, comma separated — e.g. Technology, Identity"
+          />
           <div class="editor-toolbar">
             <button type="button" data-wrap="**">Bold</button
             ><button type="button" data-wrap="*">Italic</button
             ><button type="button" data-prefix="## ">Heading</button
-            ><button type="button" data-prefix="- ">List</button><button type="button" id="linkButton">Link</button>
+            ><button type="button" data-prefix="- ">List</button
+            ><button type="button" id="linkButton">Link</button>
           </div>
-          <textarea
+          <label for="body">Essay text (Markdown)</label
+          ><textarea
             id="body"
             maxlength="20000"
             rows="12"
@@ -51,7 +72,7 @@
                 id="coverImage"
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/gif" /></label
-            ><span id="uploadStatus" class="muted"></span>
+            ><span id="uploadStatus" class="muted" role="status"></span>
           </div>
           <img
             id="coverPreview"
@@ -59,7 +80,8 @@
             alt="Cover preview"
           /><input id="coverUrl" type="hidden" />
           <div class="composer-footer">
-            <select id="status">
+            <label for="status" class="sr-only">Publication status</label
+            ><select id="status">
               <option value="published">Published</option>
               <option value="draft">Draft</option>
             </select>
@@ -81,7 +103,7 @@
               </button>
             </div>
           </div>
-          <p id="postMessage" class="message"></p>
+          <p id="postMessage" class="message" role="status"></p>
         </form>
       </section>
       <section>
@@ -90,29 +112,58 @@
       </section>
     </main>
 
-    <div id="previewModal" class="preview-modal hidden" role="dialog" aria-modal="true" aria-labelledby="previewHeading">
+    <div
+      id="previewModal"
+      class="preview-modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="previewHeading"
+    >
       <div class="preview-backdrop" data-close-preview></div>
       <section class="preview-dialog">
-        <div class="preview-toolbar"><strong id="previewHeading">Essay preview</strong><button id="closePreviewButton" class="secondary-button" type="button">Close</button></div>
+        <div class="preview-toolbar">
+          <strong id="previewHeading">Essay preview</strong
+          ><button
+            id="closePreviewButton"
+            class="secondary-button"
+            type="button"
+          >
+            Close
+          </button>
+        </div>
         <article id="previewArticle" class="preview-article"></article>
       </section>
     </div>
 
-    <div id="linkModal" class="preview-modal hidden" role="dialog" aria-modal="true" aria-labelledby="linkModalHeading">
+    <div
+      id="linkModal"
+      class="preview-modal hidden"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="linkModalHeading"
+    >
       <div class="preview-backdrop" data-close-link></div>
-      <section class="preview-dialog" style="max-width:560px">
+      <section class="preview-dialog link-dialog">
         <div class="preview-toolbar">
           <strong id="linkModalHeading">Add link</strong>
-          <button id="closeLinkButton" class="secondary-button" type="button">Close</button>
+          <button id="closeLinkButton" class="secondary-button" type="button">
+            Close
+          </button>
         </div>
-        <div style="padding:24px">
+        <div class="link-dialog-body">
           <label for="linkText">Link text</label>
-          <input id="linkText" type="text" placeholder="Text readers will see">
+          <input
+            id="linkText"
+            type="text"
+            placeholder="Text readers will see"
+          />
           <label for="linkUrl">Web address</label>
-          <input id="linkUrl" type="url" placeholder="https://example.com">
+          <input id="linkUrl" type="url" placeholder="https://example.com" />
           <p id="linkError" class="error"></p>
-          <div class="composer-buttons" style="margin-top:18px">
-            <button id="insertLinkButton" class="primary-button" type="button">Insert link</button>
+          <div class="composer-buttons link-dialog-buttons">
+            <button id="insertLinkButton" class="primary-button" type="button">
+              Insert link
+            </button>
           </div>
         </div>
       </section>
@@ -121,5 +172,6 @@
     <script src="/js/markdown.js"></script>
     <script src="/js/site.js"></script>
     <script src="/js/admin.js"></script>
+    <script src="/js/dialog-a11y.js"></script>
   </body>
 </html>

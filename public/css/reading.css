@@ -1,0 +1,141 @@
+/* Shared by published essays and the author preview. No editor layout rules. */
+.article-shell {
+  max-width: 1000px;
+}
+.article-page {
+  padding: 75px 0 90px;
+}
+.article-header {
+  max-width: 850px;
+  margin: 0 auto 40px;
+  text-align: left;
+}
+.article-topics {
+  font:
+    500 0.72rem/1.6 system-ui,
+    sans-serif;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: #806044;
+}
+.article-header h1 {
+  font:
+    400 clamp(2.8rem, 5.8vw, 5rem)/1.12 Georgia,
+    "Times New Roman",
+    serif;
+  letter-spacing: -0.04em;
+  margin: 20px 0 26px;
+  overflow-wrap: break-word;
+}
+.article-deck {
+  font:
+    400 clamp(1.2rem, 2.3vw, 1.55rem)/1.5 Georgia,
+    serif;
+  color: #686259;
+  max-width: 65ch;
+  margin: 0 0 24px;
+}
+.article-date {
+  font:
+    0.8rem/1.6 system-ui,
+    sans-serif;
+  color: #686259;
+}
+.article-cover {
+  width: 100%;
+  height: auto;
+  max-height: none;
+  border-radius: 0;
+  object-fit: contain;
+  margin: 0 0 52px;
+}
+.article-content {
+  width: min(66ch, 100%);
+  margin-inline: auto;
+  color: #292824;
+  font:
+    1.2rem/1.8 Georgia,
+    "Times New Roman",
+    serif;
+  overflow-wrap: break-word;
+}
+.article-content p {
+  margin: 0 0 1.4em;
+}
+.article-content h1,
+.article-content h2,
+.article-content h3 {
+  font-family: Georgia, serif;
+  font-weight: 400;
+  line-height: 1.25;
+  letter-spacing: -0.025em;
+  margin: 1.8em 0 0.7em;
+}
+.article-content h1 {
+  font-size: 2.5rem;
+}
+.article-content h2 {
+  font-size: 2.1rem;
+}
+.article-content h3 {
+  font-size: 1.65rem;
+}
+.article-content ul {
+  padding-left: 1.4em;
+  margin: 0 0 1.4em;
+}
+.article-content li {
+  padding-left: 0.25em;
+  margin-bottom: 0.5em;
+}
+.article-content a {
+  color: #806044;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.article-end {
+  width: min(66ch, 100%);
+  margin: 55px auto 0;
+  border-top: 1px solid #d6cec1;
+  padding-top: 24px;
+  font:
+    0.9rem system-ui,
+    sans-serif;
+}
+.article-end a {
+  color: #806044;
+  text-underline-offset: 5px;
+}
+.preview-article .article-header {
+  max-width: 850px;
+}
+.preview-article .article-header h1 {
+  font-size: clamp(2.5rem, 5vw, 4.5rem);
+}
+.preview-article .article-content {
+  width: min(66ch, 100%);
+}
+@media (max-width: 650px) {
+  .article-page {
+    padding-block: 48px 65px;
+  }
+  .article-header {
+    margin-bottom: 30px;
+  }
+  .article-header h1 {
+    font-size: clamp(2.5rem, 10vw, 3.8rem);
+  }
+  .article-cover {
+    margin-bottom: 32px;
+  }
+  .article-content {
+    font-size: 1.125rem;
+    line-height: 1.8;
+  }
+  .article-content h2 {
+    font-size: 1.8rem;
+  }
+  .article-content h3 {
+    font-size: 1.45rem;
+  }
+}

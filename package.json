@@ -6,20 +6,27 @@
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
-    "dev": "node --watch server.js"
+    "dev": "node --watch server.js",
+    "preview": "node scripts/preview.js",
+    "test": "node tests/redesign.test.js"
   },
   "engines": {
     "node": ">=20"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.4",
     "bcryptjs": "^3.0.2",
     "dotenv": "^16.4.7",
     "express": "^5.1.0",
     "express-rate-limit": "^8.1.0",
     "express-session": "^1.18.2",
     "helmet": "^8.1.0",
-    "pg": "^8.16.3",
-    "@supabase/supabase-js": "^2.57.4",
-    "multer": "^2.0.2"
+    "multer": "^2.0.2",
+    "pg": "^8.16.3"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
+    "pg-mem": "^3.0.14",
+    "playwright": "^1.64.0"
   }
 }

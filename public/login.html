@@ -1,35 +1,49 @@
 <!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Login — Simple Blog</title>
-  <meta name="description" content="Stories, ideas and things worth sharing.">
-  <link rel="stylesheet" href="/css/style.css">
-</head>
-<body>
-  <main class="auth-page">
-    <form id="loginForm" class="auth-card">
-      <a class="brand" href="/">Simple Blog</a>
-      <h1>Author login</h1>
-      <p class="muted">Sign in to write and publish posts.</p>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Login — Beyond the Persona</title>
+    <meta
+      name="description"
+      content="Stories, ideas and things worth sharing."
+    />
+    <link rel="stylesheet" href="/css/style.css" />
+  </head>
+  <body>
+    <main class="auth-page">
+      <form id="loginForm" class="auth-card">
+        <a class="brand" href="/">Beyond the Persona</a>
+        <h1>Author login</h1>
+        <p class="muted">Sign in to write and publish posts.</p>
 
-      <label>
-        Username
-        <input id="username" name="username" autocomplete="username" required>
-      </label>
+        <label>
+          Username
+          <input
+            id="username"
+            name="username"
+            autocomplete="username"
+            required
+          />
+        </label>
 
-      <label>
-        Password
-        <input id="password" name="password" type="password" autocomplete="current-password" required>
-      </label>
+        <label>
+          Password
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+          />
+        </label>
 
-      <button class="primary-button" type="submit">Log in</button>
-      <p id="loginError" class="error"></p>
-      <a href="/">← Back to blog</a>
-    </form>
-  </main>
-  <script src="/js/site.js"></script>
-  <script src="/js/login.js"></script>
-</body>
+        <button class="primary-button" type="submit">Log in</button>
+        <p id="loginError" class="error" role="alert"></p>
+        <a href="/">← Back to blog</a>
+      </form>
+    </main>
+    <script src="/js/site.js"></script>
+    <script src="/js/login.js"></script>
+  </body>
 </html>
