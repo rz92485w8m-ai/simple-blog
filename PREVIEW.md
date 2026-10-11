@@ -37,6 +37,12 @@ Use the locally generated screenshots if no forwarding feature is available. Do 
 
 Review Home, Essays, an individual sample essay, About and Contact. Resize the browser or use mobile device emulation. All preview pages have a prominent preview label. The sample essays are identified as demonstration content, not writing or experiences attributed to Paula. They are never saved to a database.
 
+### Preview category artwork
+
+The sample cards explicitly map Life to `life-dna.jpg`, Reflection to `reflection-monk.jpg`, Philosophy to `philosophy-thinker.jpg`, Consciousness/Identity to `consciousness-identity-mirror.jpg`, and Artificial Intelligence to the existing human–AI illustration. On Essays, the selected filter determines the sample card image. All and Home use each sample's first category. Author-selected covers still take priority.
+
+This behavior is provided by `scripts/preview-category-images.js`, served and injected only by `scripts/preview.js`. Production HTML, image selection and article records are untouched. The earlier classical source ZIP predates the category integration and still contains the statue fallback; use the updated working copy with the four JPEGs and both preview scripts. Restart the preview server and refresh the browser after replacing files. A server still running from another extracted folder will keep serving that folder's files.
+
 Stop the preview with Ctrl+C. If the port is already used, set `PREVIEW_PORT` to another port when running the command (for example, `PREVIEW_PORT=3005 npm run preview` on macOS/Linux).
 
 This preview is read-only: it does not load `.env`, initialise Supabase, start the production server, or support login/publishing. Use the automated isolated tests below to check the real application workflows without production access.

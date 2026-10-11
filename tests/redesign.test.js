@@ -177,6 +177,7 @@ async function main() {
     const batch = categoryCases.slice(offset, offset + 3);
     const posts = batch.map(([categories, filename, authorCover], index) => ({
       ...samplePosts[index], categories,
+      preview_image_url: null, preview_category_images: null,
       cover_image_url: authorCover ? `/images/${filename}` : null,
     }));
     await page.route("**/api/posts", (route) => route.fulfill({ json: posts }));
@@ -201,6 +202,46 @@ async function main() {
     await page.unroute("**/api/posts");
   }
   passed("All supplied category fallbacks load on Home and Essays at desktop/mobile sizes; author covers and AI/default fallbacks retain priority");
+
+  const filterImages = {
+    Life: "life-dna.jpg", Reflection: "reflection-monk.jpg",
+    Philosophy: "philosophy-thinker.jpg",
+    Consciousness: "consciousness-identity-mirror.jpg",
+    Identity: "consciousness-identity-mirror.jpg",
+    "Artificial Intelligence": "human-ai-symbiosis.webp",
+  };
+  const filterScreenshots = process.env.SCREENSHOT_DIR || "work/review";
+  fs.mkdirSync(filterScreenshots, { recursive: true });
+  for (const width of [390, 1440]) {
+    await page.setViewportSize({ width, height: 900 });
+    await page.goto(previewBase + "/essays.html");
+    await page.locator(".essay-thumb img").first().waitFor();
+    for (const [topic, filename] of Object.entries(filterImages)) {
+      await page.getByRole("button", { name: topic, exact: true }).click();
+      const images = page.locator(".essay-thumb img");
+      assert.equal(await images.count(), 1);
+      assert.equal(await images.first().getAttribute("src"), `/images/${filename}`);
+      await images.first().evaluate(async (image) => { image.loading = "eager"; await image.decode(); });
+      assert.equal(await images.first().evaluate((image) => image.naturalWidth > 0), true);
+      await page.screenshot({ path: path.join(filterScreenshots, `filter-${topic.toLowerCase().replaceAll(" ", "-")}-${width}.png`), fullPage: true });
+    }
+    await page.getByRole("button", { name: "All", exact: true }).click();
+    assert.equal(await page.locator(".essay-thumb img").nth(2).getAttribute("src"), "/images/life-dna.jpg");
+    await page.goto(previewBase + "/essays.html?topic=Reflection");
+    await page.locator(".essay-thumb img").waitFor();
+    assert.equal(await page.locator(".essay-thumb img").getAttribute("src"), "/images/reflection-monk.jpg");
+  }
+  // Even preview metadata must not replace an author-selected cover.
+  await page.route("**/api/posts", (route) => route.fulfill({ json: [{ ...samplePosts[2], cover_image_url: "/images/mediterranean-panorama.webp" }] }));
+  await page.goto(previewBase + "/essays.html?topic=Reflection");
+  await page.locator(".essay-thumb img").waitFor();
+  assert.equal(await page.locator(".essay-thumb img").getAttribute("src"), "/images/mediterranean-panorama.webp");
+  await page.unroute("**/api/posts");
+  const productionArchive = await context.request.get(base + "/essays.html");
+  assert.equal((await productionArchive.text()).includes("/preview-category-images.js"), false);
+  assert.equal((await context.request.get(base + "/preview-category-images.js")).status(), 404);
+  passed("Preview category filters select every approved image, including deep links and reset; covers win and adapter is absent from production");
+
 
   await page.goto(previewBase + "/");
   await page.keyboard.press("Tab");

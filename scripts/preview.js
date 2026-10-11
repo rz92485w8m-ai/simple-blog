@@ -39,6 +39,22 @@ const samplePosts = [
     body: "Preview-only sample content.\n\n## The human condition\n\nA short demonstration of the literary page design.",
   },
 ];
+// Explicit preview-only assignments; never written to article records.
+const categoryImages = {
+  Life: "/images/life-dna.jpg",
+  Reflection: "/images/reflection-monk.jpg",
+  Philosophy: "/images/philosophy-thinker.jpg",
+  Consciousness: "/images/consciousness-identity-mirror.jpg",
+  Identity: "/images/consciousness-identity-mirror.jpg",
+  "Artificial Intelligence": "/images/human-ai-symbiosis.webp",
+};
+for (const post of samplePosts) {
+  const categories = post.categories.split(",").map((topic) => topic.trim());
+  post.preview_category_images = Object.fromEntries(
+    categories.map((topic) => [topic, categoryImages[topic]]),
+  );
+  post.preview_image_url = categoryImages[categories[0]];
+}
 const types = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
@@ -70,6 +86,10 @@ const server = http.createServer((req, res) => {
     );
   } catch {
     return json(400, { error: "Invalid URL" });
+  }
+  if (pathname === "/preview-category-images.js") {
+    res.writeHead(200, { "Content-Type": types[".js"] });
+    return res.end(req.method === "HEAD" ? undefined : fs.readFileSync(path.join(__dirname, "preview-category-images.js")));
   }
   if (pathname === "/api/posts") return json(200, samplePosts);
   if (pathname.startsWith("/api/posts/slug/")) {
@@ -103,6 +123,10 @@ const server = http.createServer((req, res) => {
       body = Buffer.from(
         body
           .toString()
+          .replace(
+            '<script src="/js/essay-ui.js"></script>',
+            '<script src="/js/essay-ui.js"></script><script src="/preview-category-images.js"></script>',
+          )
           .replace(
             /<body\b[^>]*>/,
             '$&<div class="preview-banner" role="note">LOCAL DESIGN PREVIEW · sample essays only · no database connection</div>',
