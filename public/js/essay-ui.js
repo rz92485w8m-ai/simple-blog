@@ -55,16 +55,20 @@ window.EssayUI = (() => {
         src: "/images/human-ai-symbiosis.webp",
         className: "thumb-symbiosis",
       };
-    if (/life|reflection|human condition/.test(categoryText))
-      return {
-        src: "/images/mediterranean-hero.webp",
-        className: "thumb-statue",
-      };
+    const categoryImage = (filename) => ({
+      src: "/images/" + filename,
+      className: "thumb-category",
+      width: 1672,
+      height: 941,
+    });
+    if (/life|human condition/.test(categoryText))
+      return categoryImage("life-dna.jpg");
+    if (/reflection/.test(categoryText))
+      return categoryImage("reflection-monk.jpg");
     if (/consciousness|identity|psychology|awareness/.test(categoryText))
-      return {
-        src: "/images/mediterranean-hero.webp",
-        className: "thumb-portrait",
-      };
+      return categoryImage("consciousness-identity-mirror.jpg");
+    if (/philosophy/.test(categoryText))
+      return categoryImage("philosophy-thinker.jpg");
     return {
       src: "/images/philosophy-terrace.webp",
       className: "thumb-terrace",
@@ -72,12 +76,12 @@ window.EssayUI = (() => {
   };
   const artworkMarkup = (post, className = "article-illustration") => {
     const image = artwork(post);
-    return `<figure class="${className}"><img src="${escape(image.src)}" alt="" width="${image.className === "thumb-terrace" ? 1536 : 2172}" height="${image.className === "thumb-terrace" ? 1024 : 724}" loading="lazy"><figcaption>Editorial artwork · ${/thumb-symbiosis/.test(image.className) ? "human and artificial intelligence in dialogue" : "a classical Mediterranean setting"}</figcaption></figure>`;
+    return `<figure class="${className}"><img src="${escape(image.src)}" alt="" width="${image.width ?? (image.className === "thumb-terrace" ? 1536 : 2172)}" height="${image.height ?? (image.className === "thumb-terrace" ? 1024 : 724)}" loading="lazy"><figcaption>Editorial artwork · ${/thumb-symbiosis/.test(image.className) ? "human and artificial intelligence in dialogue" : "a classical Mediterranean setting"}</figcaption></figure>`;
   };
   const card = (post, index = 0) => {
     const href = "/p/" + encodeURIComponent(post.slug);
     const image = artwork(post);
-    return `<article class="essay-card"><a class="essay-thumb ${image.className}" href="${href}" tabindex="-1" aria-hidden="true"><img src="${escape(image.src)}" alt="" width="${image.className === "thumb-terrace" ? 1536 : 2172}" height="${image.className === "thumb-terrace" ? 1024 : 724}" loading="lazy" decoding="async"></a><div class="essay-card-copy"><div class="essay-topics"><span class="essay-number" aria-hidden="true">${String(index + 1).padStart(2, "0")} /</span> ${topics(post).map(escape).join(" · ") || "Essay"}</div><h3><a class="essay-title" href="${href}">${escape(post.title)}</a></h3><p>${escape(excerpt(post))}</p><div class="essay-card-footer">${dateMarkup(post.created_at)}<a class="read-arrow" href="${href}" aria-label="Read ${escape(post.title)}"><span aria-hidden="true">→</span></a></div></div></article>`;
+    return `<article class="essay-card"><a class="essay-thumb ${image.className}" href="${href}" tabindex="-1" aria-hidden="true"><img src="${escape(image.src)}" alt="" width="${image.width ?? (image.className === "thumb-terrace" ? 1536 : 2172)}" height="${image.height ?? (image.className === "thumb-terrace" ? 1024 : 724)}" loading="lazy" decoding="async"></a><div class="essay-card-copy"><div class="essay-topics"><span class="essay-number" aria-hidden="true">${String(index + 1).padStart(2, "0")} /</span> ${topics(post).map(escape).join(" · ") || "Essay"}</div><h3><a class="essay-title" href="${href}">${escape(post.title)}</a></h3><p>${escape(excerpt(post))}</p><div class="essay-card-footer">${dateMarkup(post.created_at)}<a class="read-arrow" href="${href}" aria-label="Read ${escape(post.title)}"><span aria-hidden="true">→</span></a></div></div></article>`;
   };
   async function request(url) {
     const controller = new AbortController();

@@ -156,6 +156,52 @@ async function main() {
   }
   passed("Locally hosted artwork is served with correct image types");
 
+
+  const categoryCases = [
+    ["Consciousness, Identity", "consciousness-identity-mirror.jpg"],
+    ["Philosophy", "philosophy-thinker.jpg"],
+    ["Life", "life-dna.jpg"],
+    ["Reflection", "reflection-monk.jpg"],
+    ["Identity", "consciousness-identity-mirror.jpg"],
+    ["Life, Reflection", "life-dna.jpg"],
+    ["Artificial Intelligence, Philosophy", "human-ai-symbiosis.webp"],
+    ["Uncategorized", "philosophy-terrace.webp"],
+    ["Life", "mediterranean-panorama.webp", true],
+  ];
+  for (const filename of new Set(categoryCases.map(([, filename]) => filename))) {
+    const response = await context.request.get(`${previewBase}/images/${filename}`);
+    assert.equal(response.status(), 200);
+    assert.match(response.headers()["content-type"], filename.endsWith(".jpg") ? /image\/jpeg/ : /image\/webp/);
+  }
+  for (let offset = 0; offset < categoryCases.length; offset += 3) {
+    const batch = categoryCases.slice(offset, offset + 3);
+    const posts = batch.map(([categories, filename, authorCover], index) => ({
+      ...samplePosts[index], categories,
+      cover_image_url: authorCover ? `/images/${filename}` : null,
+    }));
+    await page.route("**/api/posts", (route) => route.fulfill({ json: posts }));
+    for (const width of [390, 1440]) {
+      await page.setViewportSize({ width, height: 900 });
+      for (const url of ["/", "/essays.html"]) {
+        await page.goto(previewBase + url);
+        await page.waitForFunction(() => document.querySelectorAll(".essay-thumb img").length === 3);
+        for (const [index, [, filename]] of batch.entries()) {
+          const img = page.locator(".essay-thumb img").nth(index);
+          assert.equal(await img.getAttribute("src"), `/images/${filename}`);
+          await img.evaluate(async (image) => { image.loading = "eager"; await image.decode(); });
+          assert.equal(await img.evaluate((image) => image.naturalWidth > 0), true);
+          if (filename.endsWith(".jpg")) {
+            assert.equal(await img.getAttribute("width"), "1672");
+            assert.equal(await img.getAttribute("height"), "941");
+            assert.equal(await img.evaluate((image) => getComputedStyle(image).position), "static");
+          }
+        }
+      }
+    }
+    await page.unroute("**/api/posts");
+  }
+  passed("All supplied category fallbacks load on Home and Essays at desktop/mobile sizes; author covers and AI/default fallbacks retain priority");
+
   await page.goto(previewBase + "/");
   await page.keyboard.press("Tab");
   assert.equal(
